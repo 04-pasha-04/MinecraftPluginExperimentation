@@ -17,16 +17,13 @@ public final class PluginSmiensy extends JavaPlugin implements Listener {
     private HashMap<UUID, Location> homes;
     private HashMap<UUID, UUID> tprequests;
 
-    private HashMap<UUID, List<Location>> reses;
+    private HashMap<UUID, resObject> reses;
     @Override
     public void onEnable() {
         // Plugin startup logic
         this.homes = new HashMap<UUID, Location>();
         this.tprequests = new HashMap<UUID, UUID>();
-        this.reses = new HashMap<UUID, List<Location>>();
-
-        Bukkit.getLogger().info("Meow Meow Meow !!!");
-
+        this.reses = new HashMap<UUID, resObject>();
         getCommand("res").setExecutor(new res(this));
         getCommand("tpa").setExecutor(new tpa(this));
         getCommand("tp").setExecutor(new tp(this));
@@ -35,16 +32,15 @@ public final class PluginSmiensy extends JavaPlugin implements Listener {
         getCommand("flyon").setExecutor(new flyon());
         getCommand("flyoff").setExecutor(new flyoff());
         getCommand("die").setExecutor(new die());
-
         getServer().getPluginManager().registerEvents(new resHoeEvent(this), this);
         getServer().getPluginManager().registerEvents(new onJoin(), this);
         getServer().getPluginManager().registerEvents(new CanDo(), this);
     }
 
+
     @Override
     public void onDisable() {
         // Plugin shutdown logic
-        Bukkit.getLogger().info("Mrrrp!");
     }
 
     public void addHome(UUID id, Location loc){
@@ -80,34 +76,34 @@ public final class PluginSmiensy extends JavaPlugin implements Listener {
 
     public void resPointSet(UUID id, Location l){
 
-        if(this.reses.get(id) != null){
-            if(this.reses.get(id).isEmpty()){
-                this.reses.get(id).add(0, l);
-                Bukkit.getPlayer(id).sendRawMessage(ChatColor.YELLOW + "First point of the res selected!");
-            }else{
-                try {
-                    this.reses.get(id).get(1);
-                    this.reses.get(id).clear();
-                    Bukkit.getPlayer(id).sendRawMessage(ChatColor.YELLOW + "Res selection cancelled!");
-                } catch (IndexOutOfBoundsException e) {
-                    this.reses.get(id).add(1, l);
-                    Bukkit.getPlayer(id).sendRawMessage(ChatColor.YELLOW + "Res selected!" + "\n" + "type [/res set <name>] to set the selected res.");
+        resObject ro = this.reses.get(id);
+        Player player = Bukkit.getPlayer(id);
 
-                }
-            }
-
-        }else {
-            List<Location> xy = new ArrayList<Location>(2);
-            xy.add(0,l);
-            this.reses.put(id, xy);
-            Bukkit.getPlayer(id).sendRawMessage(ChatColor.YELLOW + "First point the res selected!");
+        if(ro == null){
+            this.reses.put(id, new resObject(l, null, id));
+        }else if(ro.getX() == null){
+            ro.setX(l);
+            player.sendRawMessage(ChatColor.YELLOW + "First point set at: " + "\n" + l);
+        }else if(ro.getY() == null){
+            ro.setY(l);
+            player.sendRawMessage(ChatColor.YELLOW + "Residence selected!" + "\n" + "type [/res create <name>] to create the residence!");
+        }else if(ro.getX() != null && ro.getY() != null){
+            ro.locClear();
+            player.sendRawMessage(ChatColor.YELLOW + "Selection cleared!");
         }
 
-
-
-
     }
-    public List getLocations(UUID id){
+
+    //finish these two functions!!!!!!!
+    public boolean isBlockInRes(Location l){
+        return false;
+    }
+
+    public resObject getResTheBlockIsIn(Location l){
+        return null;
+    }
+
+    public resObject getRes(UUID id){
         return this.reses.get(id);
     }
 

@@ -1,9 +1,13 @@
 package pluginsmiesny.pluginsmiensy;
 
+import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class res implements CommandExecutor {
 
@@ -22,6 +26,7 @@ public class res implements CommandExecutor {
             if((args[0] != null) && (args[1] != null)){
                 String name = args[1];
                 if(args[0] == "set"){
+
 
                 }else if(args[0] == "delete"){
 

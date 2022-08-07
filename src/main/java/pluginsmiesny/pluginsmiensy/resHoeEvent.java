@@ -31,6 +31,9 @@ public class resHoeEvent implements Listener {
         if((action == Action.RIGHT_CLICK_BLOCK) && (item.getType() == Material.STICK)){
             Location l = event.getClickedBlock().getLocation();
             UUID id = event.getPlayer().getUniqueId();
+
+
+
             this.plugin.resPointSet(id, l);
         }
 
