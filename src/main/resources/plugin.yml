@@ -1,0 +1,29 @@
+name: PluginSmiensy
+version: '${project.version}'
+main: pluginsmiesny.pluginsmiensy.PluginSmiensy
+api-version: 1.19
+commands:
+  die:
+    description: End your life (join the 41%)
+    usage: /<command>
+  flyon:
+    description: Give a player ability to fly
+    usage: /<command>
+  flyoff:
+    description: Remove a player's ability to fly
+    usage: /<command>
+  sethome:
+    description: Sets a new home
+    usage: /<command>
+  home:
+    description: Teleports a player to his home
+    usage: /<command>
+  tp:
+    description: Sends a tp request to a player of choice
+    usage: /<command>
+  tpa:
+    description: Accepts a tp request from another player
+    usage: /<command>
+  res:
+    description: Creates or removes a residence
+    usage: /<command>
