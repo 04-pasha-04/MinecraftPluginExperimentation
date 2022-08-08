@@ -37,6 +37,8 @@ public class res implements CommandExecutor {
                     player.sendRawMessage(ChatColor.GREEN + "Res created with name: " + args[1]);
                     return true;
                 }else if(args[0].equalsIgnoreCase("delete")){
+                    this.plugin.deleteRes(player.getUniqueId());
+                    player.sendRawMessage(ChatColor.YELLOW + "Your res has been removed!");
                     return true;
                 }else{
                     return false;

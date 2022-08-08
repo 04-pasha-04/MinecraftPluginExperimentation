@@ -95,7 +95,7 @@ public final class PluginSmiensy extends JavaPlugin implements Listener {
 
     }
 
-    //finish these two functions!!!!!!!
+
     public boolean isBlockInRes(Location l){
 
         for(resObject value: this.reses.values()) {
@@ -120,7 +120,7 @@ public final class PluginSmiensy extends JavaPlugin implements Listener {
         return this.reses.get(id);
     }
 
-    //untested might not work!!! finish tomorrow
+    //work on edge cases!!!
     public boolean isIntersectingWithOtherRes(resObject res){
 
         double bx,sx,by,sy,bz,sz;
@@ -139,6 +139,10 @@ public final class PluginSmiensy extends JavaPlugin implements Listener {
         }
 
         return false;
+    }
+
+    public void deleteRes(UUID id){
+        this.reses.remove(id);
     }
 
 
