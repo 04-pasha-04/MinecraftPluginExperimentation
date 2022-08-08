@@ -1,5 +1,7 @@
 package pluginsmiesny.pluginsmiensy;
 
+import org.bukkit.ChatColor;
+import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -20,25 +22,33 @@ public class res implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
-        if (sender instanceof Player){
+        if (sender instanceof Player) {
             Player player = (Player) sender;
 
-            if((args[0] != null) && (args[1] != null)){
-                String name = args[1];
-                if(args[0] == "set"){
-
-
-                }else if(args[0] == "delete"){
-
+            if(args.length == 2){
+                player.sendRawMessage(args.length + "");
+                if(args[0].equalsIgnoreCase("create")){
+                    if(this.plugin.isIntersectingWithOtherRes(this.plugin.getRes(player.getUniqueId()))){
+                        player.sendRawMessage(ChatColor.RED + "Your res intersects with someone else's res!");
+                        return false;
+                    }
+                    this.plugin.getRes(player.getUniqueId()).setName(args[1]);
+                    this.plugin.getRes(player.getUniqueId()).solidify();
+                    player.sendRawMessage(ChatColor.GREEN + "Res created with name: " + args[1]);
+                    return true;
+                }else if(args[0].equalsIgnoreCase("delete")){
+                    return true;
+                }else{
+                    return false;
                 }
-
-
             }else{
                 return false;
             }
+
+        }else{
+            return  false;
         }
 
-
-        return true;
     }
+
 }
