@@ -23,10 +23,9 @@ public class tp implements CommandExecutor
         if (sender instanceof Player) {
             Player player = (Player) sender;
 
-            if(args[0] == null){
+            if(args[0].length() < 1){
                 return false;
             }else{
-
                 UUID recipient = Bukkit.getPlayerExact(args[0]).getUniqueId();
                 if(args[0] != null){
                     if(!Bukkit.getPlayer(recipient).isOnline()) {
@@ -40,8 +39,6 @@ public class tp implements CommandExecutor
                     player.sendRawMessage(ChatColor.RED + "Enter the name of a player you want to send a tp request!");
                     return false;
                 }
-
-
 
             }
 

@@ -22,7 +22,7 @@ public class resObject {
 
     public resObject(Location x, Location y, UUID owner){
         this.x = x;
-        this.y = null;
+        this.y = y;
         this.owner = owner;
         this.members = new ArrayList<UUID>();
         this.solidified = false;
@@ -72,9 +72,19 @@ public class resObject {
     }
 
     public void addMember(UUID newmember){
-        if(newmember != null) {
+        if(newmember != null && newmember != owner) {
             this.members.add(newmember);
         }
+    }
+
+    public void removeMember(UUID member){
+        if(this.members.contains(member)){
+            this.members.remove(member);
+        }
+    }
+
+    public String getName(){
+        return this.name;
     }
 
 
@@ -92,6 +102,7 @@ public class resObject {
         double bx,sx,by,sy,bz,sz;
 
         if(!solidified){
+            Bukkit.getLogger().info("notsol!");
             return false;
         }
 
@@ -102,16 +113,12 @@ public class resObject {
         if(l.getX() >= sx && l.getX() <= bx){
             if(l.getY() >= sy && l.getY() <= by){
                 if(l.getZ() >= sz && l.getZ() <= bz){
-                    Bukkit.getLogger().info("yes!");
                     return true;
                 }
-                Bukkit.getLogger().info("noz!");
                 return  false;
             }
-            Bukkit.getLogger().info("noy!");
             return false;
         }
-        Bukkit.getLogger().info("nox!");
         return false;
     }
 

@@ -7,6 +7,10 @@ import org.bukkit.event.player.PlayerQuitEvent;
 
 public class onJoin implements Listener {
 
+    private final PluginSmiensy plugin;
+    public onJoin(PluginSmiensy plugin){
+        this.plugin = plugin;
+    }
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event){
 
@@ -14,6 +18,7 @@ public class onJoin implements Listener {
 
         if(!event.getPlayer().hasPlayedBefore()){
             event.setJoinMessage("New player joined! " + name + " welcome to the server!");
+
         }
 
         event.setJoinMessage("Welcome back! " + name);

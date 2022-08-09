@@ -12,10 +12,10 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.UUID;
 
-public class resHoeEvent implements Listener {
+public class resStickEvent implements Listener {
 
     private final PluginSmiensy plugin;
-    public resHoeEvent(PluginSmiensy plugin){
+    public resStickEvent(PluginSmiensy plugin){
         this.plugin = plugin;
     }
 
