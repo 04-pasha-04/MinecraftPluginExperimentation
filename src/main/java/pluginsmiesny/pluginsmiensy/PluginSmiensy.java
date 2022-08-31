@@ -7,6 +7,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -14,6 +16,7 @@ import java.util.UUID;
 
 public final class PluginSmiensy extends JavaPlugin implements Listener {
 
+    private database db;
     private HashMap<UUID, Location> homes;
     private HashMap<UUID, UUID> tprequests;
 
@@ -22,11 +25,20 @@ public final class PluginSmiensy extends JavaPlugin implements Listener {
     private HashMap<UUID, List<Location>> templocs;
     @Override
     public void onEnable() {
-        // Plugin startup logic
+
         this.homes = new HashMap<UUID, Location>();
         this.tprequests = new HashMap<UUID, UUID>();
         this.reses = new HashMap<UUID, List<resObject>>();
         this.templocs = new HashMap<UUID, List<Location>>();
+
+        db = new database(this);
+        try {
+            db.updateHomesMap();
+//            db.updateResesMap();
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+
         getCommand("res").setExecutor(new res(this));
         getCommand("tpa").setExecutor(new tpa(this));
         getCommand("tp").setExecutor(new tp(this));
@@ -36,6 +48,7 @@ public final class PluginSmiensy extends JavaPlugin implements Listener {
         getCommand("flyoff").setExecutor(new flyoff());
         getCommand("die").setExecutor(new die());
         getServer().getPluginManager().registerEvents(new resStickEvent(this), this);
+        getServer().getPluginManager().registerEvents(new onRespawn(this), this);
         getServer().getPluginManager().registerEvents(new onJoin(this), this);
         getServer().getPluginManager().registerEvents(new CanDo(this), this);
     }
@@ -46,10 +59,14 @@ public final class PluginSmiensy extends JavaPlugin implements Listener {
         // Plugin shutdown logic
     }
 
-    public void addHome(UUID id, Location loc){
+    //adds a home location with a player's id as a key to the homes hashmap
+    public void addHome(UUID id, Location loc) throws SQLException, ClassNotFoundException {
+
+        db.addHome(id, loc, Bukkit.getWorlds().get(0));
         this.homes.put(id, loc);
     }
 
+    //return location where player has set his home to be
     public Location getHome(UUID id){
         if(homes.containsKey(id)){
             return homes.get(id);
@@ -59,10 +76,12 @@ public final class PluginSmiensy extends JavaPlugin implements Listener {
 
     }
 
+    //sends a tp request to a player and stores it temporarily in the tprequests hashmap with the recipient's id as a key
     public void sendTpRequest(UUID recipient, UUID requester){
         this.tprequests.put(recipient, requester);
     }
 
+    //returns id of the recipient if the tprequest
     public UUID getTpRequest(UUID recipient){
         if(this.tprequests.containsKey(recipient)){
             return this.tprequests.get(recipient);
@@ -73,10 +92,12 @@ public final class PluginSmiensy extends JavaPlugin implements Listener {
 
     }
 
+    //removes the tprequest form the tprequests hashmap
     public void deleteTpRequest(UUID recipient){
         this.tprequests.remove(recipient);
     }
 
+    //saves the locations of stick res marks temporarily in the templocs hashmap under players id
     public void resPointSet(UUID id, Location l){
 
         Player player = Bukkit.getPlayer(id);
@@ -86,6 +107,7 @@ public final class PluginSmiensy extends JavaPlugin implements Listener {
             this.templocs.get(id).add(0, l);
             this.templocs.get(id).add(1, null);
             player.sendRawMessage(ChatColor.YELLOW + "First point set at: " + "\n" + l);
+            Bukkit.getLogger().info(l.toString().length() + "");
         }
         else if(!this.templocs.get(id).isEmpty()){
             if(this.templocs.get(id).get(1) != null)  {
@@ -99,6 +121,7 @@ public final class PluginSmiensy extends JavaPlugin implements Listener {
 
     }
 
+    //returns the first of the two res point locations that a player has set
     public Location getTx(UUID id) {
         if(this.templocs.get(id) == null){
             return null;
@@ -107,6 +130,7 @@ public final class PluginSmiensy extends JavaPlugin implements Listener {
         }
     }
 
+    //returns the second of the two res point locations that a player has set
     public Location getTy(UUID id) {
         if(this.templocs.get(id) == null){
             return null;
@@ -115,6 +139,7 @@ public final class PluginSmiensy extends JavaPlugin implements Listener {
         }
     }
 
+    //checks if block's locations is in any residence
     public boolean isBlockInRes(Location l){
         for(List<resObject> valueList : reses.values()) {
             for(resObject value : valueList) {
@@ -125,6 +150,7 @@ public final class PluginSmiensy extends JavaPlugin implements Listener {
     }
 
 
+    //return the residence that the block is located in
     public resObject getBlockRes(Location l){
         for(List<resObject> list: this.reses.values()) {
             for(resObject res: list){
@@ -137,6 +163,7 @@ public final class PluginSmiensy extends JavaPlugin implements Listener {
     }
 
 
+    //returns the resobject that is under the specified id in the reses hashmap and with the specified name
     public resObject getRes(UUID id, String name){
         if(this.reses.containsKey(id)){
             for(int i=0; i<this.reses.get(id).size(); i++){
@@ -152,7 +179,7 @@ public final class PluginSmiensy extends JavaPlugin implements Listener {
 
 
 
-    //work on edge cases!!!
+    //checks if the selected res intersects with any other created res
     public boolean isIntersectingWithOtherRes(resObject res){
 
         double bx,sx,by,sy,bz,sz;
@@ -173,6 +200,7 @@ public final class PluginSmiensy extends JavaPlugin implements Listener {
         return false;
     }
 
+    //deletes the res with specified name under the specified id in the hashmap
     public void deleteRes(UUID id, String name){
         if(this.reses.containsKey(id)){
             for(int i=0; i<this.reses.get(id).size(); i++){
@@ -183,19 +211,25 @@ public final class PluginSmiensy extends JavaPlugin implements Listener {
         }
     }
 
-    public void addRes(UUID id, resObject res){
+    //creates a value pair in a hashmap and adds the res under the specified id
+    public void addRes(UUID id, resObject res) throws SQLException, ClassNotFoundException {
         if(this.reses.containsKey(id)){
             this.reses.get(id).add(res);
+            this.db.addRes(id, res);
         }else{
             this.reses.put(id, new ArrayList<resObject>());
             this.reses.get(id).add(res);
+            this.db.addRes(id, res);
+            Bukkit.getLogger().info(res.getX().getX()+"");
         }
     }
 
+    //returns a list of temporary selected res corners that are under the specified id in the templocs hashmap
     public List<Location> getTempLocs(UUID id){
         return this.templocs.get(id);
     }
 
+    //return a list of the residences from the reses hashmap that belong to a player with specified id
     public List<resObject> getResListById(UUID id){
         return this.reses.get(id);
     }
