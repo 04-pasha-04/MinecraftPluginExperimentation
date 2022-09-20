@@ -60,8 +60,7 @@ public class res implements CommandExecutor {
                     }
                     if(this.plugin.getTempLocs(player.getUniqueId()) != null && this.plugin.getTx(player.getUniqueId()) != null && this.plugin.getTy(player.getUniqueId()) != null){
                         newres = new resObject(this.plugin.getTx(player.getUniqueId()), this.plugin.getTy(player.getUniqueId()), player.getUniqueId());
-                        Bukkit.getLogger().info(newres.getX()+"");
-                        Bukkit.getLogger().info(newres.getY()+"");
+
                     }else{
                         player.sendRawMessage(ChatColor.RED + "Can not create res: You didn't select the res points");
                         return false;
@@ -88,8 +87,12 @@ public class res implements CommandExecutor {
                     //deleting residence
 
 
-                    if(this.plugin.getRes(player.getUniqueId(), args[0]) != null){
-                        this.plugin.deleteRes(player.getUniqueId(), args[1]);
+                    if(this.plugin.getRes(player.getUniqueId(), args[1]) != null){
+                        try {
+                            this.plugin.deleteRes(player.getUniqueId(), args[1]);
+                        } catch (SQLException e) {
+                            throw new RuntimeException(e);
+                        }
                         player.sendRawMessage(ChatColor.GREEN + "Desired res has been removed!");
                         return true;
                     }else{
@@ -118,7 +121,11 @@ public class res implements CommandExecutor {
                     //adding a player to a residence
                     if (res != null) {
                         if(Bukkit.getPlayerExact(args[2]) != null){
-                            res.addMember(Bukkit.getPlayerExact(args[2]).getUniqueId());
+                            try {
+                                res.addMember(Bukkit.getPlayerExact(args[2]).getUniqueId(), this.plugin.getDb());
+                            } catch (SQLException e) {
+                                throw new RuntimeException(e);
+                            }
                             player.sendRawMessage(ChatColor.GREEN + args[2] + " Has been added to your" + " '" + args[1] + "' res!");
                             return true;
                         }else{
@@ -133,7 +140,11 @@ public class res implements CommandExecutor {
                     //removing a player from a residence
                     if(res != null){
                         if(Bukkit.getPlayerExact(args[2]) != null) {
-                            res.removeMember(Bukkit.getPlayerExact(args[2]).getUniqueId());
+                            try {
+                                res.removeMember(Bukkit.getPlayerExact(args[2]).getUniqueId(), this.plugin.getDb());
+                            } catch (SQLException e) {
+                                throw new RuntimeException(e);
+                            }
                             return true;
                         }else{
                             player.sendRawMessage(ChatColor.RED + "Can not remove player: There is no such player!");

@@ -31,10 +31,8 @@ public class CanDo implements Listener {
         //if the block is in a res checks if the player is a member or owner and if he is not cancels the blockbreak event
         if(this.plugin.isBlockInRes(event.getBlock().getLocation())){
             resObject res = this.plugin.getBlockRes(event.getBlock().getLocation());
-            UUID resowner = res.getOwner();
             List<UUID> members = res.getMembers();
-            Bukkit.getLogger().info(Bukkit.getPlayer(resowner).getDisplayName());
-            if(resowner != playerId && !members.contains(playerId)){
+            if(!res.isOwner(playerId) && !res.isMember(playerId)){
                 willbecancelled = true;
             }
         }
@@ -51,9 +49,8 @@ public class CanDo implements Listener {
         //if the block is in a res checks if the player is a member or owner and if he is not cancels the blockplace event
         if(this.plugin.isBlockInRes(event.getBlock().getLocation())){
             resObject res = this.plugin.getBlockRes(event.getBlock().getLocation());
-            UUID resowner = res.getOwner();
             List<UUID> members = res.getMembers();
-            if(resowner != playerId && !members.contains(playerId)){
+            if(!res.isOwner(playerId) && !res.isMember(playerId)){
                 willbecancelled = true;
             }
         }

@@ -34,7 +34,7 @@ public final class PluginSmiensy extends JavaPlugin implements Listener {
         db = new database(this);
         try {
             db.updateHomesMap();
-//            db.updateResesMap();
+            db.updateResesMap();
         } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
@@ -57,6 +57,10 @@ public final class PluginSmiensy extends JavaPlugin implements Listener {
     @Override
     public void onDisable() {
         // Plugin shutdown logic
+    }
+
+    public database getDb(){
+        return this.db;
     }
 
     //adds a home location with a player's id as a key to the homes hashmap
@@ -107,7 +111,6 @@ public final class PluginSmiensy extends JavaPlugin implements Listener {
             this.templocs.get(id).add(0, l);
             this.templocs.get(id).add(1, null);
             player.sendRawMessage(ChatColor.YELLOW + "First point set at: " + "\n" + l);
-            Bukkit.getLogger().info(l.toString().length() + "");
         }
         else if(!this.templocs.get(id).isEmpty()){
             if(this.templocs.get(id).get(1) != null)  {
@@ -127,6 +130,7 @@ public final class PluginSmiensy extends JavaPlugin implements Listener {
             return null;
         }else {
             return this.templocs.get(id).get(0);
+
         }
     }
 
@@ -201,10 +205,11 @@ public final class PluginSmiensy extends JavaPlugin implements Listener {
     }
 
     //deletes the res with specified name under the specified id in the hashmap
-    public void deleteRes(UUID id, String name){
+    public void deleteRes(UUID id, String name) throws SQLException {
         if(this.reses.containsKey(id)){
             for(int i=0; i<this.reses.get(id).size(); i++){
                 if(this.reses.get(id).get(i).getName().equalsIgnoreCase(name)){
+                    this.db.deleteRes(id, name);
                     this.reses.get(id).remove(i);
                 }
             }
@@ -220,7 +225,16 @@ public final class PluginSmiensy extends JavaPlugin implements Listener {
             this.reses.put(id, new ArrayList<resObject>());
             this.reses.get(id).add(res);
             this.db.addRes(id, res);
-            Bukkit.getLogger().info(res.getX().getX()+"");
+        }
+    }
+
+
+    public void hmAddRes(UUID id, resObject res){
+        if(this.reses.containsKey(id)){
+            this.reses.get(id).add(res);
+        }else{
+            this.reses.put(id, new ArrayList<resObject>());
+            this.reses.get(id).add(res);
         }
     }
 

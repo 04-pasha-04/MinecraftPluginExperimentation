@@ -5,12 +5,15 @@ import com.google.gson.GsonBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 
+import javax.annotation.Nullable;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 
 public class resObject {
+
 
     private final UUID owner;
 
@@ -20,9 +23,9 @@ public class resObject {
 
     private boolean solidified;
 
+    private Gson gson;
+
     private String name;
-
-
 
 
     public resObject(Location x, Location y, UUID owner){
@@ -31,6 +34,7 @@ public class resObject {
         this.owner = owner;
         this.members = new ArrayList<UUID>();
         this.solidified = false;
+        this.gson = new GsonBuilder().enableComplexMapKeySerialization().registerTypeAdapter(this.getClass(), new resObjectTypeAdapter()).create();
 
     }
 
@@ -56,7 +60,6 @@ public class resObject {
     }
 
     public String toJson(){
-        Gson gson = new GsonBuilder().enableComplexMapKeySerialization().registerTypeAdapter(this.getClass(), new resObjectTypeAdapter()).create();
         return gson.toJson(this);
     }
 
@@ -74,15 +77,20 @@ public class resObject {
 
 
     //adds a member's id to the members list
-    public void addMember(UUID newmember){
-        if(newmember != null && newmember != owner) {
+    public void addMember(UUID newmember,@Nullable database db) throws SQLException {
+//        if(!newmember.equals(owner)) {
             this.members.add(newmember);
-        }
+            if(db != null) {
+                db.addResMember(this.owner, newmember, name);
+            }
+//        }
     }
 
+
     //removes the specified id from the members list
-    public void removeMember(UUID member){
+    public void removeMember(UUID member, database db) throws SQLException {
         if(this.members.contains(member)){
+            db.removeResMember(this.owner, member, this.name);
             this.members.remove(member);
         }
     }
@@ -96,11 +104,10 @@ public class resObject {
 
     //returns true if the specified id is the same as owners id. If not return false
     boolean isOwner(UUID id){
-        if(this.owner == id){
-            return true;
-        }else{
-            return false;
-        }
+        return this.owner.equals(id);
+    }
+    boolean isMember(UUID id){
+        return this.members.contains(id);
     }
 
     //checks if the specified location is in this res
@@ -109,7 +116,6 @@ public class resObject {
         double bx,sx,by,sy,bz,sz;
 
         if(!solidified){
-            Bukkit.getLogger().info("notsol!");
             return false;
         }
 
